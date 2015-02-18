@@ -38,7 +38,8 @@ The CSV should be structured this way:
 - owner_id: Numeric owner id. Default unassigned
 - column_id: Numeric column id. Defaults to first column on board. If column id does not belong to this project, **task is not created and no error is shown**
 
- ## Troubleshooting
+ ## Troubleshooting tips
  
+* If it says 'Not Authorized', means the token is not valid.
 * The webhook URL can be checked from browser. Call this URL from browser it's alright if you get a FAILED message. If you see 'Not Authorized' then this is not correct.
  

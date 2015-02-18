@@ -19,7 +19,7 @@ $webhookurl = "http://kanboard.local/?controller=webhook&action=task&token=7f7b7
 $filename = $argv [1];
 
 if (empty ( $filename )) {
-	help ();
+	printf ( "\n  SYNTAX: csv2kanboard.php <filename>. You need to pass a comma delimited filename as argument. For more information, see https://github.com/ashbike/csv2kanboard/blob/master/README.md\n\n" );
 	exit ( 1 );
 }
 
@@ -58,6 +58,12 @@ while ( ! feof ( $file_handle ) ) {
 		
 		curl_setopt ( $curl, CURLOPT_URL, $url );
 		$output = curl_exec ( $curl );
+		
+		$httpcode = curl_getinfo ( $curl, CURLINFO_HTTP_CODE );
+		if ($httpcode == '401') {
+			printf ( "!!! Your webhook URL is not correct or token is no longer valid. Please check from browser. For more information, see https://github.com/ashbike/csv2kanboard/blob/master/README.md\n\n" );
+			exit ( 2 );
+		}
 		print $output . "\n";
 	} else {
 		printf ( "SKIPPED. Missing project_id or title.\n" );
@@ -69,9 +75,4 @@ curl_close ( $curl );
 fclose ( $file_handle );
 
 printf ( "Finished. \n\n" );
-
-
-function help() {
-	printf ( "\n  SYNTAX: csv2kanboard.php <filename>. You need to pass a comma delimited filename as argument.\n\n" );
-}
 ?>
