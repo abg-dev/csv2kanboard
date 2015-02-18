@@ -40,6 +40,6 @@ The CSV should be structured this way:
 
  ## Troubleshooting tips
  
-* If it says 'Not Authorized', means the token is not valid.
+* If it says 'Not Authorized', it means the token is not valid.
 * The webhook URL can be checked from browser. Call this URL from browser it's alright if you get a FAILED message. If you see 'Not Authorized' then this is not correct.
  
