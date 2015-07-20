@@ -16,6 +16,17 @@ $webhookurl = "http://kanboard.local/?controller=webhook&action=task&token=7f7b7
  * - title: If not provided, row will be skipped.
  */
 
+$handle = fopen ( ".csv2kanboard", "r" );
+if ($handle) {
+	if (($line = fgets ( $handle )) !== false) {
+		$webhookurl = trim ( $line );
+		printf ( "\n  Using webhook URL from locally stored .csv2kanboard file...\n" );
+		fclose ( $handle );
+	}
+} else {
+	printf ( "\n  Using webhook URL from defined in script...\n" );
+}
+
 $filename = $argv [1];
 
 if (empty ( $filename )) {
@@ -42,7 +53,8 @@ while ( ! feof ( $file_handle ) ) {
 		$firstrow = false;
 		continue;
 	}
-	
+	$rownum ++;
+
 	$project_id = trim ( $row [0] );
 	$title = trim ( $row [1] );
 	printf ( "  Processing row [%'.4u]...    ", $rownum );
@@ -55,8 +67,14 @@ while ( ! feof ( $file_handle ) ) {
 		$url .= "&color_id=" . trim ( $row [3] );
 		$url .= "&owner_id=" . trim ( $row [4] );
 		$url .= "&column_id=" . trim ( $row [5] );
+		$url .= "&category_id=" . trim ( $row [6] );
 		
 		curl_setopt ( $curl, CURLOPT_URL, $url );
+		
+		// Ignore SSL certificates
+		curl_setopt ( $curl, CURLOPT_SSL_VERIFYHOST, 0 );
+		curl_setopt ( $curl, CURLOPT_SSL_VERIFYPEER, 0 );
+		
 		$output = curl_exec ( $curl );
 		
 		$httpcode = curl_getinfo ( $curl, CURLINFO_HTTP_CODE );
@@ -64,15 +82,14 @@ while ( ! feof ( $file_handle ) ) {
 			printf ( "!!! Your webhook URL is not correct or token is no longer valid. Please check from browser. For more information, see https://github.com/ashbike/csv2kanboard/blob/master/README.md\n\n" );
 			exit ( 2 );
 		}
-		print $output . "\n";
+		printf ( "\n" );
 	} else {
 		printf ( "SKIPPED. Missing project_id or title.\n" );
 	}
-	$rownum ++;
 }
 
 curl_close ( $curl );
 fclose ( $file_handle );
 
-printf ( "Finished. \n\n" );
+printf ( "  Finished. \n\n" );
 ?>
